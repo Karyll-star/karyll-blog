@@ -34,7 +34,7 @@ const parseMarkdownHeadings = (markdown: string): Node[] => {
   const slugger = new GithubSlugger()
   const headingRegex = /^(#{2,4})\s+(.+)$/gm
   const headings: Node[] = []
-  let match
+  let match: RegExpExecArray | null
 
   while ((match = headingRegex.exec(markdown)) !== null) {
     const level = match[1].length
