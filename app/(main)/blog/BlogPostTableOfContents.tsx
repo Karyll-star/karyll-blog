@@ -4,13 +4,13 @@ import { clsxm } from '@zolplay/utils'
 import { motion, useScroll, type Variants } from 'framer-motion'
 import React from 'react'
 
-interface HeadingNode {
+export interface HeadingNode {
   _type: 'span'
   text: string
   _key: string
 }
 
-interface Node {
+export interface Node {
   _type: 'block'
   style: 'h1' | 'h2' | 'h3' | 'h4'
   _key: string

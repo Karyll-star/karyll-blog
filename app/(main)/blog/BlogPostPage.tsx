@@ -1,6 +1,7 @@
 'use client'
 
 import { parseDateTime } from '@zolplay/utils'
+import GithubSlugger from 'github-slugger'
 import Image from 'next/image'
 import React from 'react'
 
@@ -22,26 +23,32 @@ import { Button } from '~/components/ui/Button'
 import { Container } from '~/components/ui/Container'
 import { prettifyNumber } from '~/lib/math'
 import { type PostDetail } from '~/sanity/schemas/post'
-import GithubSlugger from 'github-slugger'
 
 import { BlogPostCard } from './BlogPostCard'
-import { BlogPostTableOfContents } from './BlogPostTableOfContents'
+import {
+  BlogPostTableOfContents,
+  type Node,
+} from './BlogPostTableOfContents'
 
-const parseMarkdownHeadings = (markdown: string) => {
+const parseMarkdownHeadings = (markdown: string): Node[] => {
   const slugger = new GithubSlugger()
   const headingRegex = /^(#{2,4})\s+(.+)$/gm
-  const headings: any[] = []
+  const headings: Node[] = []
   let match
 
   while ((match = headingRegex.exec(markdown)) !== null) {
     const level = match[1].length
     const text = match[2]
     const id = slugger.slug(text)
+    
+    // Validate style to match Node interface
+    const style = `h${level}` as Node['style']
+    
     headings.push({
       _type: 'block',
-      style: `h${level}`,
+      style,
       _key: id,
-      children: [{ _type: 'span', text }],
+      children: [{ _type: 'span', text, _key: id + '-span' }],
     })
   }
 
@@ -60,8 +67,8 @@ export function BlogPostPage({
   relatedViews: number[]
 }) {
   const isMarkdown = Boolean(post.markdown)
-  const headings = isMarkdown
-    ? parseMarkdownHeadings(post.markdown!)
+  const headings = isMarkdown && post.markdown
+    ? parseMarkdownHeadings(post.markdown)
     : post.headings
 
   return (
@@ -153,8 +160,8 @@ export function BlogPostPage({
               </div>
             </header>
             <Prose className="mt-8">
-              {isMarkdown ? (
-                <PostMarkdown content={post.markdown!} />
+              {isMarkdown && post.markdown ? (
+                <PostMarkdown content={post.markdown} />
               ) : (
                 <PostPortableText value={post.body} />
               )}
