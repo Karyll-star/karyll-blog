@@ -69,6 +69,7 @@ export const getBlogPostQuery = groq`
         ...
       }
     },
+    markdown,
     "headings": body[length(style) == 2 && string::startsWith(style, "h")],
     mainImage {
       _ref,

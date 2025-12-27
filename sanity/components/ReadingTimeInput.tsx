@@ -25,11 +25,19 @@ function flattenBlocks(blocks: SanityBlock[]): string[] {
 
 export default function ReadingTimeInput(props: NumberInputProps) {
   const body = useFormValue(['body'])
+  const markdown = useFormValue(['markdown'])
 
   const generate = React.useCallback(() => {
-    const rt = ReadingTime(flattenBlocks(body as SanityBlock[]).join('\n'))
+    let content = ''
+    if (typeof markdown === 'string' && markdown.length > 0) {
+      content = markdown
+    } else if (Array.isArray(body)) {
+      content = flattenBlocks(body as SanityBlock[]).join('\n')
+    }
+
+    const rt = ReadingTime(content)
     props.onChange(set(rt.minutes))
-  }, [body, props])
+  }, [body, markdown, props])
 
   return (
     <Flex gap={3} align="center">

@@ -15,15 +15,38 @@ import {
   UTurnLeftIcon,
 } from '~/assets'
 import { ClientOnly } from '~/components/ClientOnly'
+import { PostMarkdown } from '~/components/PostMarkdown'
 import { PostPortableText } from '~/components/PostPortableText'
 import { Prose } from '~/components/Prose'
 import { Button } from '~/components/ui/Button'
 import { Container } from '~/components/ui/Container'
 import { prettifyNumber } from '~/lib/math'
 import { type PostDetail } from '~/sanity/schemas/post'
+import GithubSlugger from 'github-slugger'
 
 import { BlogPostCard } from './BlogPostCard'
 import { BlogPostTableOfContents } from './BlogPostTableOfContents'
+
+const parseMarkdownHeadings = (markdown: string) => {
+  const slugger = new GithubSlugger()
+  const headingRegex = /^(#{2,4})\s+(.+)$/gm
+  const headings: any[] = []
+  let match
+
+  while ((match = headingRegex.exec(markdown)) !== null) {
+    const level = match[1].length
+    const text = match[2]
+    const id = slugger.slug(text)
+    headings.push({
+      _type: 'block',
+      style: `h${level}`,
+      _key: id,
+      children: [{ _type: 'span', text }],
+    })
+  }
+
+  return headings
+}
 
 export function BlogPostPage({
   post,
@@ -36,12 +59,17 @@ export function BlogPostPage({
   reactions?: number[]
   relatedViews: number[]
 }) {
+  const isMarkdown = Boolean(post.markdown)
+  const headings = isMarkdown
+    ? parseMarkdownHeadings(post.markdown!)
+    : post.headings
+
   return (
     <Container className="mt-16 lg:mt-32">
       <div className="w-full md:flex md:justify-between xl:relative">
         <aside className="hidden w-[160px] shrink-0 lg:block">
           <div className="sticky top-2 pt-20">
-            <BlogPostTableOfContents headings={post.headings} />
+            <BlogPostTableOfContents headings={headings} />
           </div>
         </aside>
         <div className="max-w-2xl md:flex-1 md:shrink-0">
@@ -125,7 +153,11 @@ export function BlogPostPage({
               </div>
             </header>
             <Prose className="mt-8">
-              <PostPortableText value={post.body} />
+              {isMarkdown ? (
+                <PostMarkdown content={post.markdown!} />
+              ) : (
+                <PostPortableText value={post.body} />
+              )}
             </Prose>
           </article>
         </div>
