@@ -16,6 +16,7 @@ export function PostMarkdown({ content }: { content: string }) {
       remarkPlugins={[remarkGfm]}
       rehypePlugins={[rehypeSlug]}
       components={{
+        pre: ({ children }) => <>{children}</>,
         a: ({ children, href }) => {
           const rel = !href?.startsWith('/') ? 'noreferrer noopener' : undefined
           return (

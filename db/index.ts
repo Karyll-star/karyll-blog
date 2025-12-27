@@ -1,5 +1,5 @@
 import { Pool } from '@neondatabase/serverless'
-import { drizzle } from 'drizzle-orm/neon-serverless'
+import { drizzle } from 'drizzle-orm/neon-http'
 
 import { env } from '~/env.mjs'
 
